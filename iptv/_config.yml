@@ -6,6 +6,7 @@ include:
   - "*.html"
   - "*.css"
   - "*.js"
+  - "*.m3u"
 exclude:
   - "*.md"
   - ".gemini"
