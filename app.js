@@ -97,6 +97,9 @@ const GROUP_MAP = {
   'documentary':    { country: null, category: 'Documentary' },
   'science':        { country: null, category: 'Documentary' },
   'entertainment':  { country: null, category: 'Entertainment' },
+  'adult':          { country: null, category: 'Adult' },
+  '18+':            { country: null, category: 'Adult' },
+  'xxx':            { country: null, category: 'Adult' },
 };
 
 // Flag emoji → ISO country code
@@ -184,6 +187,7 @@ const DOM = {
   badgeEntertainment: $('badge-entertainment'),
   badgeKids: $('badge-kids'),
   badgeReligious: $('badge-religious'),
+  badgeAdult: $('badge-adult'),
   badgeBd: $('badge-bd'),
   badgeIn: $('badge-in'),
   badgeUs: $('badge-us'),
@@ -266,6 +270,7 @@ function classifyByName(name) {
   if (/docu|national geo|discovery|animal|planet|history|adventure/.test(lower)) return 'Documentary';
   if (/islam|quran|madani|deen|eman|religious|church|god|pray/.test(lower)) return 'Religious';
   if (/weather|accuweather/.test(lower)) return 'Weather';
+  if (/adult|18\+|xxx|porn|nsfw|sex|redlight/.test(lower)) return 'Adult';
   return 'Entertainment';
 }
 
@@ -528,6 +533,7 @@ function updateNavBadges() {
   setBadge(DOM.badgeEntertainment, cats['Entertainment'] || 0);
   setBadge(DOM.badgeKids,          cats['Kids']          || 0);
   setBadge(DOM.badgeReligious,     cats['Religious']     || 0);
+  setBadge(DOM.badgeAdult,         cats['Adult']         || 0);
   setBadge(DOM.badgeBd,            c['BD']  || 0);
   setBadge(DOM.badgeIn,            c['IN']  || 0);
   setBadge(DOM.badgeUs,            c['US']  || 0);
@@ -735,6 +741,7 @@ function updateHeading() {
     Entertainment: '🎭 Entertainment',
     Kids:          '🧒 Kids',
     Religious:     '🕌 Religious',
+    Adult:         '🔞 Adult Content',
     BD:            '🇧🇩 Bangladesh',
     IN:            '🇮🇳 India',
     US:            '🇺🇸 United States',
