@@ -1,0 +1,12 @@
+---
+# GitHub Pages Jekyll configuration
+# This file tells GitHub Pages to serve our static site correctly.
+theme: null
+include:
+  - "*.html"
+  - "*.css"
+  - "*.js"
+  - "*.m3u"
+exclude:
+  - "*.md"
+  - ".gemini"
