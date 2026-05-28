@@ -540,9 +540,32 @@ function startViewerSimulation() {
    CHANNEL STATUS MONITORING
    ============================================================ */
 function startStatusChecks() {
+  // Mark all as 'checking'
   for (const ch of STATE.allChannels) STATE.statusMap[ch.url] = 'checking';
-  STATE.checkingQueue = [...STATE.allChannels];
+
+  // Put currently visible channels at the FRONT of the queue
+  const start = (STATE.currentPage - 1) * CONFIG.CHANNELS_PER_PAGE;
+  const visible = STATE.filteredChannels.slice(start, start + CONFIG.CHANNELS_PER_PAGE);
+  const visibleUrls = new Set(visible.map(ch => ch.url));
+  const visibleFirst = STATE.allChannels.filter(ch => visibleUrls.has(ch.url));
+  const rest         = STATE.allChannels.filter(ch => !visibleUrls.has(ch.url));
+  STATE.checkingQueue = [...visibleFirst, ...rest];
+
   processBatch();
+}
+
+/**
+ * Whenever the visible page changes (filter / search / pagination),
+ * promote still-unchecked visible channels to the front of the queue.
+ */
+function prioritizeVisibleChannels() {
+  if (STATE.checkingQueue.length === 0) return;
+  const start = (STATE.currentPage - 1) * CONFIG.CHANNELS_PER_PAGE;
+  const visible = STATE.filteredChannels.slice(start, start + CONFIG.CHANNELS_PER_PAGE);
+  const visibleUrls = new Set(visible.map(ch => ch.url));
+  const priority = STATE.checkingQueue.filter(ch => visibleUrls.has(ch.url));
+  const rest     = STATE.checkingQueue.filter(ch => !visibleUrls.has(ch.url));
+  STATE.checkingQueue = [...priority, ...rest];
 }
 
 async function processBatch() {
@@ -670,6 +693,9 @@ function applyFilters() {
   STATE.currentPage = 1;
   renderChannels();
   updateHeading();
+
+  // Give visible channels verification priority
+  prioritizeVisibleChannels();
 }
 
 function updateHeading() {
@@ -958,12 +984,62 @@ function showPlayerOverlay(show) {
 }
 
 function closePlayer() {
+  // Exit PIP if active before destroying player
+  if (document.pictureInPictureElement) {
+    document.exitPictureInPicture().catch(() => {});
+  }
   if (STATE.playerInstance) {
     try { STATE.playerInstance.dispose(); } catch (_) {}
     STATE.playerInstance = null;
   }
   DOM.playerSection.style.display = 'none';
+  STATE.currentChannel = null;
   rebuildVideoEl();
+}
+
+/* ============================================================
+   PICTURE-IN-PICTURE (AUTO PIP)
+   Activates when user switches tab or minimises the window.
+   Deactivates when user returns to the tab.
+   ============================================================ */
+function initPipMode() {
+  // Helper: get the live <video> element (may be recreated)
+  const getVideo = () => document.getElementById('streamPlayer');
+
+  const tryEnterPip = async () => {
+    if (!STATE.currentChannel) return;          // nothing playing
+    if (document.pictureInPictureElement) return; // already in PIP
+    if (!document.pictureInPictureEnabled) return; // browser doesn't support
+    const video = getVideo();
+    if (!video || video.paused || video.readyState < 2) return;
+    try {
+      await video.requestPictureInPicture();
+    } catch (_) { /* user may have disabled PIP or browser doesn't allow */ }
+  };
+
+  const tryExitPip = async () => {
+    if (document.pictureInPictureElement) {
+      try { await document.exitPictureInPicture(); } catch (_) {}
+    }
+  };
+
+  // Tab switching (most reliable cross-browser trigger)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) tryEnterPip();
+    else tryExitPip();
+  });
+
+  // Window blur = minimise or switch app (fallback)
+  window.addEventListener('blur', () => {
+    // Small delay to let visibilitychange fire first (avoid double-trigger)
+    setTimeout(tryEnterPip, 300);
+  });
+  window.addEventListener('focus', () => tryExitPip());
+
+  // When user manually exits PIP via the PIP window controls, just sync state
+  document.addEventListener('leavepictureinpicture', () => {
+    // Nothing special needed — video continues in the page
+  });
 }
 
 /* ============================================================
@@ -1050,11 +1126,21 @@ function initEventListeners() {
 
   // Pagination
   DOM.prevPageBtn.addEventListener('click', () => {
-    if (STATE.currentPage > 1) { STATE.currentPage--; renderChannels(); scrollTo({ top: 0, behavior: 'smooth' }); }
+    if (STATE.currentPage > 1) {
+      STATE.currentPage--;
+      renderChannels();
+      scrollTo({ top: 0, behavior: 'smooth' });
+      prioritizeVisibleChannels();   // re-prioritize new page's channels
+    }
   });
   DOM.nextPageBtn.addEventListener('click', () => {
     const total = Math.ceil(STATE.filteredChannels.length / CONFIG.CHANNELS_PER_PAGE);
-    if (STATE.currentPage < total) { STATE.currentPage++; renderChannels(); scrollTo({ top: 0, behavior: 'smooth' }); }
+    if (STATE.currentPage < total) {
+      STATE.currentPage++;
+      renderChannels();
+      scrollTo({ top: 0, behavior: 'smooth' });
+      prioritizeVisibleChannels();   // re-prioritize new page's channels
+    }
   });
 
   // Custom playlist modal
@@ -1083,6 +1169,7 @@ function initEventListeners() {
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
+  initPipMode();        // Auto Picture-in-Picture
   loadPlaylist();
   setTimeout(() => Toast.info('StreamVault v2', 'Loading your channels…'), 600);
 });
