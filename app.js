@@ -134,6 +134,7 @@ const STATE = {
   sourceCounts: {},
   loadingPlaylist: false,
   viewerInterval: null,
+  statusSortTimer: null,
 };
 
 /* ============================================================
@@ -611,8 +612,17 @@ function probeWithHls(url) {
 }
 
 function markChannel(url, status) {
+  if (STATE.statusMap[url] === status) return;
   STATE.statusMap[url] = status;
   updateChannelCard(url, status);
+
+  // If we are in "Status First" mode, trigger an auto-sort refresh
+  if (STATE.currentSort === 'status') {
+    clearTimeout(STATE.statusSortTimer);
+    STATE.statusSortTimer = setTimeout(() => {
+      applyFilters(false); // Refresh sort but keep the current page
+    }, 1500); // Wait 1.5s to batch multiple status updates
+  }
 }
 
 function updateChannelCard(url, status) {
@@ -633,7 +643,7 @@ function updateChannelCard(url, status) {
 /* ============================================================
    FILTERING & SORTING
    ============================================================ */
-function applyFilters() {
+function applyFilters(resetPage = true) {
   const search = STATE.currentSearch.toLowerCase().trim();
   const filter = STATE.currentFilter;
   const COUNTRY_FILTERS = new Set(['BD', 'IN', 'US', 'GB', 'PK']);
@@ -692,7 +702,7 @@ function applyFilters() {
   }
 
   STATE.filteredChannels = results;
-  STATE.currentPage = 1;
+  if (resetPage) STATE.currentPage = 1;
   renderChannels();
   updateHeading();
 
@@ -932,7 +942,8 @@ function rebuildVideoEl() {
   video.controls = true;
   video.preload  = 'auto';
   video.setAttribute('playsinline', '');
-  video.setAttribute('autoPictureInPicture', 'true');
+  video.setAttribute('autopictureinpicture', '');
+  video.autoPictureInPicture = true;
   container.insertBefore(video, DOM.playerOverlay);
 }
 
@@ -1009,36 +1020,16 @@ function initPipMode() {
   // Helper: get the live <video> element (may be recreated)
   const getVideo = () => document.getElementById('streamPlayer');
 
-  const tryEnterPip = async () => {
-    if (!STATE.currentChannel || document.pictureInPictureElement || !document.pictureInPictureEnabled) return;
-    
-    const video = getVideo();
-    // Video.js might wrap the element, ensure we have the actual video tag
-    const target = video.tagName === 'VIDEO' ? video : video.querySelector('video');
-    if (!target || target.paused || target.readyState < 2) return;
-
-    try {
-      await target.requestPictureInPicture();
-    } catch (err) { console.warn('[StreamVault] Auto-PiP failed:', err); }
-  };
-
   const tryExitPip = async () => {
     if (document.pictureInPictureElement && !document.hidden) {
       try { await document.exitPictureInPicture(); } catch (_) {}
     }
   };
 
-  // Tab switching (most reliable cross-browser trigger)
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) tryEnterPip();
-    else tryExitPip();
+    if (!document.hidden) tryExitPip();
   });
 
-  // Window blur = minimise or switch app (fallback)
-  window.addEventListener('blur', () => {
-    // Small delay to let visibilitychange fire first (avoid double-trigger)
-    setTimeout(tryEnterPip, 300);
-  });
   window.addEventListener('focus', () => tryExitPip());
 
   // When user manually exits PIP via the PIP window controls, just sync state
