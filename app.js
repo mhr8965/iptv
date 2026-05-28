@@ -533,11 +533,9 @@ function updateNavBadges() {
   setBadge(DOM.badgeUs,            c['US']  || 0);
   setBadge(DOM.badgeGb,            c['GB']  || 0);
   setBadge(DOM.badgePk,            c['PK']  || 0);
-
-  const mainCountries = new Set(['BD', 'IN', 'US', 'GB', 'PK', 'Other', '']);
-  const intl = Object.entries(c)
-    .filter(([k]) => !mainCountries.has(k))
-    .reduce((acc, [, v]) => acc + v, 0);
+  
+  const main = new Set(['BD', 'IN', 'US', 'GB', 'PK']);
+  const intl = Object.entries(c).reduce((acc, [k, v]) => !main.has(k) ? acc + v : acc, 0);
   setBadge(DOM.badgeOther, intl);
 }
 
@@ -683,8 +681,7 @@ function applyFilters(resetPage = true) {
     } else if (COUNTRY_FILTERS.has(filter)) {
       matchFilter = ch.country === filter;
     } else if (filter === 'Other') {
-      const main = new Set(['BD', 'IN', 'US', 'GB', 'PK', '']);
-      matchFilter = !main.has(ch.country || '');
+      matchFilter = !COUNTRY_FILTERS.has(ch.country);
     } else {
       matchFilter = ch.category === filter;
     }
@@ -789,11 +786,6 @@ function createChannelCard(ch, index) {
   const card = document.createElement('div');
   card.className = 'channel-card';
   card.dataset.url = ch.url;
-  card.innerHTML = `
-    <button class="card-edit-btn" title="Edit Metadata">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    </button>
-    <div class="status-badge checking">...</div>`;
 
   card.style.animationDelay = `${Math.min(index * 18, 280)}ms`;
   card.setAttribute('role', 'button');
@@ -810,6 +802,9 @@ function createChannelCard(ch, index) {
     : `<span class="channel-initial">${getInitials(ch.name)}</span>`;
 
   card.innerHTML = `
+    <button class="card-edit-btn" title="Edit Metadata">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2-2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </button>
     <div class="status-badge ${status}">
       <span class="status-dot"></span>${statusLabel}
     </div>
