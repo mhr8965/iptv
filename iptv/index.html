@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="StreamVault — Premium Web IPTV Player with 1000+ live channels. Watch Sports, Movies, News from Bangladesh, India, USA and worldwide." />
+  <meta property="og:title" content="StreamVault — Premium IPTV Player" />
+  <meta property="og:description" content="Watch 1000+ live channels worldwide with our premium dark-mode IPTV player." />
+  <meta name="theme-color" content="#0a0e1a" />
+  <title>StreamVault — Premium IPTV Player</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Video.js -->
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
+  <!-- HLS.js -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== ANIMATED BACKGROUND ===== -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M4 7C4 5.34 5.34 4 7 4h14c1.66 0 3 1.34 3 3v14c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7z" fill="url(#lg1)"/>
+          <path d="M11 10l7 4-7 4V10z" fill="white"/>
+          <defs>
+            <linearGradient id="lg1" x1="4" y1="4" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#00d4ff"/>
+              <stop offset="1" stop-color="#7b2ff7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="logo-text">StreamVault</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">BROWSE</div>
+      <a href="#" class="nav-item active" data-filter="all" id="nav-all">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        All Channels
+        <span class="nav-badge" id="badge-all">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Bangla" id="nav-bangla">
+        <span class="flag-emoji">🇧🇩</span>
+        Bangla
+        <span class="nav-badge" id="badge-bangla">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Local" id="nav-local">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 17h.01M17 14h.01M20 17h.01M17 20h.01M20 14h.01M14 20h.01"/></svg>
+        Local Files
+        <span class="nav-badge" id="badge-local">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Sports" id="nav-sports">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+        Sports
+        <span class="nav-badge" id="badge-sports">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="News" id="nav-news">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg>
+        News
+        <span class="nav-badge" id="badge-news">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Movies" id="nav-movies">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+        Movies
+        <span class="nav-badge" id="badge-movies">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Entertainment" id="nav-entertainment">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Entertainment
+        <span class="nav-badge" id="badge-entertainment">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Kids" id="nav-kids">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Kids
+        <span class="nav-badge" id="badge-kids">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Religious" id="nav-religious">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Religious
+        <span class="nav-badge" id="badge-religious">0</span>
+      </a>
+
+      <div class="nav-section-label" style="margin-top:1.5rem">REGIONS</div>
+      <a href="#" class="nav-item" data-filter="BD" id="nav-bd">
+        <span class="flag-emoji">🇧🇩</span>
+        Bangladesh
+        <span class="nav-badge" id="badge-bd">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="IN" id="nav-in">
+        <span class="flag-emoji">🇮🇳</span>
+        India
+        <span class="nav-badge" id="badge-in">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="US" id="nav-us">
+        <span class="flag-emoji">🇺🇸</span>
+        United States
+        <span class="nav-badge" id="badge-us">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="GB" id="nav-gb">
+        <span class="flag-emoji">🇬🇧</span>
+        United Kingdom
+        <span class="nav-badge" id="badge-gb">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="PK" id="nav-pk">
+        <span class="flag-emoji">🇵🇰</span>
+        Pakistan
+        <span class="nav-badge" id="badge-pk">0</span>
+      </a>
+      <a href="#" class="nav-item" data-filter="Other" id="nav-other">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        International
+        <span class="nav-badge" id="badge-other">0</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <span class="pulse-dot green"></span>
+        <span>System Online</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content" id="mainContent">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="search-container">
+        <div class="search-box" id="searchBox">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Search channels, categories..." autocomplete="off" />
+          <kbd class="search-kbd">⌘K</kbd>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="icon-btn" id="refreshBtn" title="Refresh Playlist">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <button class="icon-btn" id="fullscreenBtn" title="Fullscreen Player">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- STATS DASHBOARD -->
+    <section class="stats-section" id="statsSection">
+      <div class="stat-card" id="statTotal">
+        <div class="stat-icon-wrap cyan">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" id="totalChannels">—</span>
+          <span class="stat-label">Total Channels</span>
+        </div>
+        <div class="stat-trend up">▲ Live</div>
+      </div>
+
+      <div class="stat-card" id="statWorking">
+        <div class="stat-icon-wrap green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" id="workingChannels">—</span>
+          <span class="stat-label">Verified Working</span>
+        </div>
+        <div class="stat-trend up">▲ Online</div>
+      </div>
+
+      <div class="stat-card" id="statViewers">
+        <div class="stat-icon-wrap purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" id="liveViewers">—</span>
+          <span class="stat-label">Live Viewers</span>
+        </div>
+        <div class="stat-trend up">▲ Active</div>
+      </div>
+
+      <div class="stat-card" id="statCountries">
+        <div class="stat-icon-wrap orange">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value" id="totalCountries">—</span>
+          <span class="stat-label">Countries</span>
+        </div>
+        <div class="stat-trend">● Global</div>
+      </div>
+    </section>
+
+    <!-- VIDEO PLAYER SECTION -->
+    <section class="player-section" id="playerSection" style="display:none">
+      <div class="player-wrapper">
+        <div class="player-header">
+          <div class="now-playing-info">
+            <span class="now-playing-label">NOW PLAYING</span>
+            <h2 class="now-playing-title" id="nowPlayingTitle">Select a channel</h2>
+            <span class="now-playing-category" id="nowPlayingCategory"></span>
+          </div>
+          <div class="player-controls-extra">
+            <span class="player-quality-badge" id="playerQuality">HLS</span>
+            <button class="icon-btn" id="closePlayerBtn" title="Close Player">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="video-container">
+          <video id="streamPlayer" class="video-js vjs-theme-fantasy" controls preload="auto" playsinline>
+            <p class="vjs-no-js">Please enable JavaScript to view this video.</p>
+          </video>
+          <div class="player-overlay" id="playerOverlay">
+            <div class="player-spinner"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHANNELS GRID AREA -->
+    <section class="channels-section">
+      <div class="channels-header">
+        <div class="channels-title-wrap">
+          <h1 class="channels-title" id="channelsHeading">All Channels</h1>
+          <span class="channels-count" id="channelsCount">Loading...</span>
+        </div>
+        <div class="view-controls">
+          <button class="view-btn active" id="gridViewBtn" title="Grid view">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="view-btn" id="listViewBtn" title="List view">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+          <div class="sort-select-wrap">
+            <select id="sortSelect" class="sort-select">
+              <option value="default">Default Order</option>
+              <option value="name">A → Z</option>
+              <option value="status">Status First</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner-large"></div>
+        <p class="loading-text" id="loadingText">Fetching playlist...</p>
+        <p class="loading-sub">Connecting to stream sources</p>
+      </div>
+
+      <!-- ERROR STATE -->
+      <div class="error-container" id="errorContainer" style="display:none">
+        <div class="error-icon">⚠️</div>
+        <h3>Failed to load playlist</h3>
+        <p id="errorMessage">Could not fetch the M3U playlist. Please check your connection.</p>
+        <button class="btn-primary" id="retryBtn">Try Again</button>
+      </div>
+
+      <!-- CHANNELS GRID -->
+      <div class="channels-grid" id="channelsGrid"></div>
+
+      <!-- PAGINATION -->
+      <div class="pagination-wrap" id="paginationWrap" style="display:none">
+        <button class="page-btn" id="prevPageBtn" disabled>← Previous</button>
+        <div class="page-numbers" id="pageNumbers"></div>
+        <button class="page-btn" id="nextPageBtn">Next →</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MOBILE SIDEBAR OVERLAY -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- CUSTOM PLAYLIST MODAL -->
+  <div class="modal-overlay" id="modalOverlay" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Load Custom Playlist</h3>
+        <button class="icon-btn" id="closeModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <label for="customPlaylistUrl">M3U Playlist URL</label>
+        <input type="url" id="customPlaylistUrl" placeholder="https://example.com/playlist.m3u" class="modal-input" />
+        <div class="modal-actions">
+          <button class="btn-secondary" id="cancelModalBtn">Cancel</button>
+          <button class="btn-primary" id="loadCustomBtn">Load Playlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN JS -->
+  <script src="app.js"></script>
+</body>
+</html>
