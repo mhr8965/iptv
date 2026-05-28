@@ -168,6 +168,7 @@ const DOM = {
   gridViewBtn: $('gridViewBtn'),
   listViewBtn: $('listViewBtn'),
   sortSelect: $('sortSelect'),
+  pipBtn: $('pipBtn'),
   refreshBtn: $('refreshBtn'),
   retryBtn: $('retryBtn'),
   closePlayerBtn: $('closePlayerBtn'),
@@ -669,9 +670,12 @@ function applyFilters() {
     results.sort((a, b) => a.name.localeCompare(b.name));
   } else if (STATE.currentSort === 'status') {
     const order = { working: 0, checking: 1, down: 2 };
-    results.sort((a, b) =>
-      (order[STATE.statusMap[a.url]] ?? 1) - (order[STATE.statusMap[b.url]] ?? 1)
-    );
+    results.sort((a, b) => {
+      const sA = order[STATE.statusMap[a.url]] ?? 1;
+      const sB = order[STATE.statusMap[b.url]] ?? 1;
+      if (sA !== sB) return sA - sB;
+      return a.name.localeCompare(b.name);
+    });
   } else if (search) {
     // ── Search priority scoring ──
     // Score: 3 = exact match, 2 = name starts with, 1 = name contains, 0 = other field match
@@ -928,6 +932,7 @@ function rebuildVideoEl() {
   video.controls = true;
   video.preload  = 'auto';
   video.setAttribute('playsinline', '');
+  video.setAttribute('autoPictureInPicture', 'true');
   container.insertBefore(video, DOM.playerOverlay);
 }
 
@@ -1005,18 +1010,20 @@ function initPipMode() {
   const getVideo = () => document.getElementById('streamPlayer');
 
   const tryEnterPip = async () => {
-    if (!STATE.currentChannel) return;          // nothing playing
-    if (document.pictureInPictureElement) return; // already in PIP
-    if (!document.pictureInPictureEnabled) return; // browser doesn't support
+    if (!STATE.currentChannel || document.pictureInPictureElement || !document.pictureInPictureEnabled) return;
+    
     const video = getVideo();
-    if (!video || video.paused || video.readyState < 2) return;
+    // Video.js might wrap the element, ensure we have the actual video tag
+    const target = video.tagName === 'VIDEO' ? video : video.querySelector('video');
+    if (!target || target.paused || target.readyState < 2) return;
+
     try {
-      await video.requestPictureInPicture();
-    } catch (_) { /* user may have disabled PIP or browser doesn't allow */ }
+      await target.requestPictureInPicture();
+    } catch (err) { console.warn('[StreamVault] Auto-PiP failed:', err); }
   };
 
   const tryExitPip = async () => {
-    if (document.pictureInPictureElement) {
+    if (document.pictureInPictureElement && !document.hidden) {
       try { await document.exitPictureInPicture(); } catch (_) {}
     }
   };
@@ -1121,6 +1128,16 @@ function initEventListeners() {
 
   // Close player
   DOM.closePlayerBtn.addEventListener('click', closePlayer);
+
+  // Manual PiP Toggle
+  if (DOM.pipBtn) {
+    DOM.pipBtn.addEventListener('click', () => {
+      const video = document.getElementById('streamPlayer');
+      if (!video) return;
+      if (!document.pictureInPictureElement) video.requestPictureInPicture().catch(e => Toast.warning('PiP Error', e.message));
+      else document.exitPictureInPicture();
+    });
+  }
 
   // Pagination
   DOM.prevPageBtn.addEventListener('click', () => {
