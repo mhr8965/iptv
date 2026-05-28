@@ -382,22 +382,20 @@ async function loadPlaylist(customUrl = null) {
     if (!loaded) console.warn(`[StreamVault] ✗ Could not load: ${src.file}`);
   }
 
-  // ── 3. Remote sources (only if we got very few local channels) ──
-  if (allParsed.length < 20) {
-    for (const source of CONFIG.REMOTE_SOURCES) {
-      try {
-        DOM.loadingText.textContent = 'Connecting to remote source…';
-        const text = await fetchWithCorsProxy(source);
-        const parsed = parseM3U(text);
-        parsed.forEach(ch => ch.source = 'remote');
-        if (parsed.length > 0) {
-          allParsed.push(...parsed);
-          Toast.success('Remote playlist loaded!', `${parsed.length} channels fetched`);
-          break;
-        }
-      } catch (_) {
-        console.warn(`[StreamVault] Remote source failed: ${source}`);
+  // ── 3. Remote sources (Always attempt to load global channels) ──
+  for (const source of CONFIG.REMOTE_SOURCES) {
+    try {
+      DOM.loadingText.textContent = 'Connecting to remote source…';
+      const text = await fetchWithCorsProxy(source);
+      const parsed = parseM3U(text);
+      parsed.forEach(ch => ch.source = 'remote');
+      if (parsed.length > 0) {
+        allParsed.push(...parsed);
+        Toast.success('Remote playlist loaded!', `${parsed.length} channels fetched`);
+        break;
       }
+    } catch (_) {
+      console.warn(`[StreamVault] Remote source failed: ${source}`);
     }
   }
 
