@@ -320,6 +320,35 @@
     </div>
   </div>
 
+  <!-- EDIT CHANNEL MODAL -->
+  <div class="modal-overlay" id="editModalOverlay" style="display:none">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Channel Info</h3>
+        <button class="icon-btn" id="closeEditModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editChannelUrl" />
+        <div style="margin-bottom:16px">
+          <label for="editChannelName">Channel Name</label>
+          <input type="text" id="editChannelName" class="modal-input" />
+        </div>
+        <div style="margin-bottom:16px">
+          <label for="editChannelCategory">Category (e.g. Bangla, Sports)</label>
+          <input type="text" id="editChannelCategory" class="modal-input" />
+        </div>
+        <div style="margin-bottom:16px">
+          <label for="editChannelCountry">Country Code (e.g. BD, IN, US)</label>
+          <input type="text" id="editChannelCountry" class="modal-input" maxlength="2" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" id="cancelEditModalBtn">Cancel</button>
+          <button class="btn-primary" id="saveEditBtn">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MAIN JS -->
   <script src="app.js"></script>
 </body>

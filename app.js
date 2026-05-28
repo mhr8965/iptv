@@ -135,6 +135,7 @@ const STATE = {
   loadingPlaylist: false,
   viewerInterval: null,
   statusSortTimer: null,
+  overrides: JSON.parse(localStorage.getItem('sv_overrides') || '{}'),
 };
 
 /* ============================================================
@@ -189,6 +190,12 @@ const DOM = {
   badgeGb: $('badge-gb'),
   badgePk: $('badge-pk'),
   badgeOther: $('badge-other'),
+  editModalOverlay: $('editModalOverlay'),
+  editChannelUrl: $('editChannelUrl'),
+  editChannelName: $('editChannelName'),
+  editChannelCategory: $('editChannelCategory'),
+  editChannelCountry: $('editChannelCountry'),
+  saveEditBtn: $('saveEditBtn'),
 };
 
 /* ============================================================
@@ -416,6 +423,16 @@ async function loadPlaylist(customUrl = null) {
     if (!ch.url || seen.has(ch.url)) return false;
     seen.add(ch.url);
     return true;
+  });
+
+  // ── Apply User Metadata Overrides ──
+  STATE.allChannels.forEach(ch => {
+    const ov = STATE.overrides[ch.url];
+    if (ov) {
+      if (ov.name) ch.name = ov.name;
+      if (ov.category) ch.category = ov.category;
+      if (ov.country) ch.country = ov.country;
+    }
   });
 
   STATE.loadingPlaylist = false;
@@ -772,6 +789,12 @@ function createChannelCard(ch, index) {
   const card = document.createElement('div');
   card.className = 'channel-card';
   card.dataset.url = ch.url;
+  card.innerHTML = `
+    <button class="card-edit-btn" title="Edit Metadata">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </button>
+    <div class="status-badge checking">...</div>`;
+
   card.style.animationDelay = `${Math.min(index * 18, 280)}ms`;
   card.setAttribute('role', 'button');
   card.setAttribute('tabindex', '0');
@@ -800,6 +823,14 @@ function createChannelCard(ch, index) {
     </div>`;
 
   card.addEventListener('click', () => playChannel(ch));
+  card.querySelector('.card-edit-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    DOM.editChannelUrl.value = ch.url;
+    DOM.editChannelName.value = ch.name;
+    DOM.editChannelCategory.value = ch.category || '';
+    DOM.editChannelCountry.value = ch.country || '';
+    DOM.editModalOverlay.style.display = 'flex';
+  });
   card.addEventListener('keypress', e => { if (e.key === 'Enter' || e.key === ' ') playChannel(ch); });
   return card;
 }
@@ -1119,6 +1150,30 @@ function initEventListeners() {
 
   // Close player
   DOM.closePlayerBtn.addEventListener('click', closePlayer);
+
+  // Edit Metadata Modal Handlers
+  $('closeEditModalBtn').addEventListener('click', () => DOM.editModalOverlay.style.display = 'none');
+  $('cancelEditModalBtn').addEventListener('click', () => DOM.editModalOverlay.style.display = 'none');
+  DOM.saveEditBtn.addEventListener('click', () => {
+    const url = DOM.editChannelUrl.value;
+    const data = {
+      name: DOM.editChannelName.value.trim(),
+      category: DOM.editChannelCategory.value.trim(),
+      country: DOM.editChannelCountry.value.trim().toUpperCase()
+    };
+    if (!data.name) return Toast.warning('Empty Name', 'Channel must have a name');
+    
+    STATE.overrides[url] = data;
+    localStorage.setItem('sv_overrides', JSON.stringify(STATE.overrides));
+    
+    const ch = STATE.allChannels.find(c => c.url === url);
+    if (ch) Object.assign(ch, data);
+    
+    DOM.editModalOverlay.style.display = 'none';
+    Toast.success('Saved', `${data.name} has been moved to ${data.category}`);
+    buildCounts(); updateNavBadges(); applyFilters(false);
+  });
+  DOM.editModalOverlay.addEventListener('click', e => { if (e.target === DOM.editModalOverlay) DOM.editModalOverlay.style.display = 'none'; });
 
   // Manual PiP Toggle
   if (DOM.pipBtn) {

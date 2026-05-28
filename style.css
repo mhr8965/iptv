@@ -729,6 +729,26 @@ img { max-width: 100%; }
   border-radius: 20px;
   z-index: 2;
 }
+.card-edit-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 18, 36, 0.8);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  z-index: 10;
+  opacity: 0;
+  transition: all var(--transition);
+}
+.channel-card:hover .card-edit-btn { opacity: 1; }
+.card-edit-btn:hover { background: var(--accent-purple); color: white; border-color: var(--accent-purple); }
 .status-badge.checking {
   background: rgba(255, 152, 0, 0.12);
   color: var(--accent-orange);
