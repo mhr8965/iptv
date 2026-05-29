@@ -37,6 +37,8 @@ const CONFIG = {
 
   // Embedded fallback playlist — always works, curated global streams
   FALLBACK_PLAYLIST: `#EXTM3U
+#EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/en/thumb/f/ff/FIFA_World_Cup_2026_logo.svg/200px-FIFA_World_Cup_2026_logo.svg.png" group-title="FIFA 2026" tvg-country="US",FIFA World Cup 2026 Channel
+https://demo.unified-streaming.com/k8s/live/stable/sintel.isml/.m3u8
 #EXTINF:-1 tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/BBC_News_2019.svg/240px-BBC_News_2019.svg.png" group-title="News" tvg-country="GB",BBC News
 https://vs-hls-push-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=3840/v=pv14/b=5070016/main.m3u8
 #EXTINF:-1 tvg-logo="" group-title="News" tvg-country="QA",Al Jazeera English
@@ -78,6 +80,7 @@ const GROUP_MAP = {
   // 'Bangla' from aynaott.m3u = BD Bangla channels → own 'Bangla' category
   'bangla':         { country: 'BD', category: 'Bangla' },
   'news':           { country: null, category: 'News' },
+  'fifa 2026':      { country: null, category: 'FIFA 2026' },
   'sports':         { country: null, category: 'Sports' },
   // Hindi / Indian Bangla = Indian channels
   'hindi':          { country: 'IN', category: 'Entertainment' },
@@ -182,6 +185,7 @@ const DOM = {
   badgeBangla: $('badge-bangla'),
   badgeLocal: $('badge-local'),
   badgeSports: $('badge-sports'),
+  badgeFifa: $('badge-fifa'),
   badgeNews: $('badge-news'),
   badgeMovies: $('badge-movies'),
   badgeEntertainment: $('badge-entertainment'),
@@ -262,6 +266,7 @@ function resolveGroupMeta(groupTitle, channelName, tvgCountry) {
 
 function classifyByName(name) {
   const lower = name.toLowerCase();
+  if (/fifa|world cup|2026/.test(lower)) return 'FIFA 2026';
   if (/sport|football|cricket|soccer|nba|nfl|espn|tennis|golf|f1|moto|racing|olympic|bein|laliga/.test(lower)) return 'Sports';
   if (/news|headline|breaking|current|press|samachar/.test(lower)) return 'News';
   if (/movie|film|cinema|cine|flick|bollywood|jalsha|hallmark/.test(lower)) return 'Movies';
@@ -528,6 +533,7 @@ function updateNavBadges() {
   setBadge(DOM.badgeBangla,        cats['Bangla']       || 0);
   setBadge(DOM.badgeLocal,         (src['local'] || 0) + (src['custom'] || 0));
   setBadge(DOM.badgeSports,        cats['Sports']        || 0);
+  setBadge(DOM.badgeFifa,          cats['FIFA 2026']     || 0);
   setBadge(DOM.badgeNews,          cats['News']          || 0);
   setBadge(DOM.badgeMovies,        cats['Movies']        || 0);
   setBadge(DOM.badgeEntertainment, cats['Entertainment'] || 0);
@@ -735,6 +741,7 @@ function updateHeading() {
     all:           'All Channels',
     Local:         '📁 Local Channels',
     Bangla:        '🇧🇩 Bangla Channels',
+    'FIFA 2026':   '⚽ FIFA World Cup 2026',
     Sports:        '🏆 Sports',
     News:          '📰 News',
     Movies:        '🎬 Movies',
